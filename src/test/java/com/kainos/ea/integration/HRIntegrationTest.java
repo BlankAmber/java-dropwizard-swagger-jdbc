@@ -89,7 +89,7 @@ public class HRIntegrationTest {
     void getEmployee_shouldReturnEmployeeData() {
         EmployeeRequest employeeRequest = new EmployeeRequest(
                 30000,
-                "Integration",
+                "TEST!!!",
                 "Test",
                 "tbloggs@email.com",
                 "1 Main Street",
@@ -103,12 +103,12 @@ public class HRIntegrationTest {
                 "AA1A11AA"
         );
 
-        APP.client().target("http://localhost:8080/hr/employee")
+        int id = APP.client().target("http://localhost:8080/hr/employee")
                 .request()
                 .post(Entity.entity(employeeRequest, MediaType.APPLICATION_JSON_TYPE))
                 .readEntity(Integer.class);
 
-        EmployeeRequest employeeRequestResponse = APP.client().target("http://localhost:8080/hr/employee/1")
+        EmployeeRequest employeeRequestResponse = APP.client().target("http://localhost:8080/hr/employee/" + id)
                 .request()
                 .get(EmployeeRequest.class);
 
@@ -130,7 +130,7 @@ public class HRIntegrationTest {
     void postEmployee_shouldReturnError400WithLowSalary() {
         EmployeeRequest employeeRequest = new EmployeeRequest(
                 10000,
-                "Integration",
+                "asdfgh",
                 "Test",
                 "tbloggs@email.com",
                 "1 Main Street",
@@ -166,7 +166,7 @@ public class HRIntegrationTest {
     void postEmployee_shouldReturnError400WithInvalidBankNumber() {
         EmployeeRequest employeeRequest = new EmployeeRequest(
                 30000,
-                "Integration",
+                "vbghjmnbg",
                 "Test",
                 "tbloggs@email.com",
                 "1 Main Street",
