@@ -7,7 +7,7 @@ import com.kainos.ea.model.EmployeeRequest;
 import io.dropwizard.configuration.ResourceConfigurationSourceProvider;
 import io.dropwizard.testing.junit5.DropwizardAppExtension;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
-
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -85,6 +85,35 @@ public class HRIntegrationTest {
 
     This should pass without code changes
      */
+    @Test
+    void getEmployee_shouldReturnEmployeeData() {
+        EmployeeRequest employeeRequest = new EmployeeRequest(
+                30000,
+                "Integration",
+                "Test",
+                "tbloggs@email.com",
+                "1 Main Street",
+                "Main Road",
+                "Belfast",
+                "Antrim",
+                "BT99BT",
+                "Northern Ireland",
+                "12345678901",
+                "12345678",
+                "AA1A11AA"
+        );
+
+        APP.client().target("http://localhost:8080/hr/employee")
+                .request()
+                .post(Entity.entity(employeeRequest, MediaType.APPLICATION_JSON_TYPE))
+                .readEntity(Integer.class);
+
+        EmployeeRequest employeeRequestResponse = APP.client().target("http://localhost:8080/hr/employee/1")
+                .request()
+                .get(EmployeeRequest.class);
+
+        Assertions.assertTrue(EqualsBuilder.reflectionEquals(employeeRequest, employeeRequestResponse));
+    }
 
     /*
     Integration Test Exercise 2
@@ -97,6 +126,30 @@ public class HRIntegrationTest {
 
     This should fail, make code changes to make this test pass
      */
+    @Test
+    void postEmployee_shouldReturnError400WithLowSalary() {
+        EmployeeRequest employeeRequest = new EmployeeRequest(
+                10000,
+                "Integration",
+                "Test",
+                "tbloggs@email.com",
+                "1 Main Street",
+                "Main Road",
+                "Belfast",
+                "Antrim",
+                "BT99BT",
+                "Northern Ireland",
+                "12345678901",
+                "12345678",
+                "AA1A11AA"
+        );
+
+        Response response = APP.client().target("http://localhost:8080/hr/employee")
+                .request()
+                .post(Entity.entity(employeeRequest, MediaType.APPLICATION_JSON_TYPE));
+
+        Assertions.assertEquals(400, response.getStatus());
+    }
 
     /*
     Integration Test Exercise 3
@@ -109,6 +162,30 @@ public class HRIntegrationTest {
 
     This should fail, make code changes to make this test pass
      */
+    @Test
+    void postEmployee_shouldReturnError400WithInvalidBankNumber() {
+        EmployeeRequest employeeRequest = new EmployeeRequest(
+                30000,
+                "Integration",
+                "Test",
+                "tbloggs@email.com",
+                "1 Main Street",
+                "Main Road",
+                "Belfast",
+                "Antrim",
+                "BT99BT",
+                "Northern Ireland",
+                "12345678901",
+                "123",
+                "AA1A11AA"
+        );
+
+        Response response = APP.client().target("http://localhost:8080/hr/employee")
+                .request()
+                .post(Entity.entity(employeeRequest, MediaType.APPLICATION_JSON_TYPE));
+
+        Assertions.assertEquals(400, response.getStatus());
+    }
 
     /*
     Integration Test Exercise 4
@@ -121,4 +198,12 @@ public class HRIntegrationTest {
 
     This should fail, make code changes to make this test pass
      */
+    @Test
+    void getEmployee_shouldReturnError400WithInvalidId() {
+        Response response = APP.client().target("http://localhost:8080/hr/employee/123456")
+                .request()
+                .get();
+
+        Assertions.assertEquals(400, response.getStatus());
+    }
 }
